@@ -1,0 +1,8 @@
+.gitignore
+.npmignore
+.babelrc
+.vscode
+tests/
+node_modules/
+dist/index.js
+src/
