@@ -1,6 +1,6 @@
 {
   "name": "bob-printr",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Command line application to print code to pdf",
   "main": "index.js",
   "scripts": {
