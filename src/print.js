@@ -1,8 +1,14 @@
 import request from "request-promise-native";
 import { promises } from "fs";
+import path from 'path';
 import fs from "fs";
 const readFile = promises.readFile;
 const writeFile = promises.writeFile;
+import mkdirp from 'mkdirp';
+import { promisify } from 'util';
+import puppeteer from 'puppeteer';
+
+const mkdir = promisify(mkdirp);
 
 const uri = `https://immense-citadel-73637.herokuapp.com/generate`;
 // const uri = `https://pdf-calma.herokuapp.com/generate`;
@@ -29,9 +35,42 @@ export async function getPdf(uri) {
   return response;
 }
 
+let browser;
+export async function tearup() {
+  browser = await puppeteer.launch();
+}
+
+export async function teardown() {
+  return browser.close();
+}
+
 export async function printContent(content, outfile) {
+  try {
+    await mkdir(path.dirname(outfile));
+  } catch (e) {
+    throw new Error(`Impossible de créer le répertoire ${path.dirname(outfile)}`);
+  }
+  return printContentLocal(content, outfile);
+}
+
+export async function printContentLocal(content, outfile) {
+  const page = await browser.newPage();
+
+  await page.setContent(content, { waitUntil: 'networkidle0' });
+  await page.pdf(
+    {
+      printBackground: true,
+      path: outfile,
+      format: 'Letter'
+    });
+
+  await page.close();
+}
+
+export async function printContentRemote(content, outfile) {
   let response = await createPdf(content);
   let req = request(response.url);
+
   return new Promise((resolve, reject) => {
     req.on("response", response => {
       let buf;
@@ -54,7 +93,10 @@ export async function printContent(content, outfile) {
   });
 }
 
-export async function printFile(file) {
+export async function printFile(file, outfile) {
   const content = await readFile(file, "utf-8");
-  return printContent(content);
+  if (outfile == undefined) {
+    outfile = file + '.pdf';
+  }
+  return printContent(content, outfile);
 }

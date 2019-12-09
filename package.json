@@ -26,9 +26,25 @@
     "Export to pdf"
   ],
   "dependencies": {
+    "cli-progress": "^3.4.0",
     "jsdom": "^15.2.1",
+    "mkdirp": "^0.5.1",
+    "npm-api": "^1.0.0",
     "prismjs": "^1.17.1",
+    "puppeteer": "^2.0.0",
+    "recursive-readdir": "^2.2.2",
     "request-promise-native": "^1.0.8",
+    "settings-store": "^1.4.1",
     "yargs": "^15.0.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.7.4",
+    "@babel/core": "^7.7.4",
+    "@babel/node": "^7.7.4",
+    "@babel/plugin-transform-modules-commonjs": "^7.7.4",
+    "@babel/plugin-transform-runtime": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "@babel/register": "^7.7.4",
+    "cross-env": "^6.0.3"
   }
 }

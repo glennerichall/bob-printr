@@ -1,21 +1,29 @@
 import Prism from "prismjs";
+import loadLanguages from 'prismjs/components/';
 import { JSDOM } from "jsdom";
 import { printContent } from "./print.js";
 import { promises } from "fs";
 const { writeFile, readFile } = promises;
+import path from 'path';
 
-export async function topdf(filename) {
-    const outfile = filename + '.pdf';
-    const text = await readFile(filename, 'utf8');
-    const lang = path.extname(filename).replace(".", "");
+export default async function topdf(filename, outfile) {
+  const text = await readFile(filename, 'utf8');
+  let lang = path.extname(filename).replace(".", "");
 
-    let content = Prism.highlight(
-      text,
-      Prism.languages[this.lang],
-      lang
-    );
+  lang = lang
+    .replace('xaml', 'xml')
+    .replace('cs', 'csharp');
 
-    let html = `
+  if (!Prism.languages[lang]) {
+    loadLanguages([lang]);
+  }
+  let content = Prism.highlight(
+    text,
+    Prism.languages[lang],
+    lang
+  );
+
+  let html = `
 <html>
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-coy.min.css">
@@ -27,6 +35,7 @@ export async function topdf(filename) {
       span.token.comment.error {
         color: red;
         border-radius: 5px;
+        font-size: 1.2em;
         background-color: rgb(233, 233, 233);
       }
       span.token.comment.result {
@@ -39,9 +48,13 @@ export async function topdf(filename) {
         margin-bottom: calc(3em / 4 + 1px);
         background-color: white;
       }
+      pre[class*=language-]>code {
+        background-image: none;
+      }
       code[class*=language-], 
       pre[class*=language-]{
         white-space: pre-wrap;
+        font-size: 0.8em;
       }
       code[class*=language] {
         overflow: inherit;
@@ -49,39 +62,40 @@ export async function topdf(filename) {
       div.exclamation {
         position: absolute;
         left: 0;
-        margin-left: -16px;
+        margin-left: -13px;
       }
       div.exclamation>img {
-        width: 22px;
+        width: 18px;
       }
     </style>
 </head>
 <body>
-  <pre class="language-${this.lang}"><code class="language-${this.lang}">${content}</code></pre>
+  <pre class="language-${lang}"><code class="language-${lang}">${content}</code></pre>
 </body>
 </html>
 `;
 
-    const dom = new JSDOM(html, {});
-    const {
-      window: { document }
-    } = dom;
-    let elems = document.querySelectorAll("span.token.comment");
-    elems = Array.from(elems)
-      .filter(elem => elem.innerHTML.includes("Err:"))
-      .forEach(elem => {
-        elem.classList.add("error", "grade");
-        elem.innerHTML = '<div class="exclamation"><img src="https://image.flaticon.com/icons/svg/1599/1599171.svg"></div>' + elem.innerHTML.replace(/(\/\*|\*\/|&lt;!--|--&gt;)/g, "");
-      });
+  const dom = new JSDOM(html, {});
+  const {
+    window: { document }
+  } = dom;
+  let elems = document.querySelectorAll("span.token.comment");
+  elems = Array.from(elems)
+    .filter(elem => elem.innerHTML.includes("Err"))
+    .forEach(elem => {
+      elem.classList.add("error", "grade");
+      elem.innerHTML = '<div class="exclamation"><img src="https://image.flaticon.com/icons/svg/1599/1599171.svg"></div>' + elem.innerHTML.replace(/(\/\*|\*\/|&lt;!--|--&gt;)/g, "");
+    });
 
-    elems = document.querySelectorAll("span.token.comment");
-    elems = Array.from(elems)
-      .filter(elem => elem.innerHTML.includes("Résultat:"))
-      .forEach(elem => {
-        elem.classList.add("result", "grade");
-        elem.innerHTML = elem.innerHTML.replace(/(\/\*|\*\/|&lt;!--|--&gt;)/g, "");
-      });
+  elems = document.querySelectorAll("span.token.comment");
+  elems = Array.from(elems)
+    .filter(elem => elem.innerHTML.includes("Résultat:"))
+    .forEach(elem => {
+      elem.classList.add("result", "grade");
+      elem.innerHTML = elem.innerHTML.replace(/(\/\*|\*\/|&lt;!--|--&gt;)/g, "");
+    });
 
-    // console.log(dom.serialize());
-    return printContent(dom.serialize(), outfile);
+  const result = await printContent(dom.serialize(), outfile);
+  // await writeFile(outfile.replace('.pdf', '.html'), dom.serialize(), 'utf8');
+  return result;
 }
