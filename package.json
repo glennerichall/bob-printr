@@ -1,13 +1,13 @@
 {
   "name": "bob-printr",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "description": "Command line application to print code to pdf",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha --require @babel/register tests/ ",
+    "test": "node_modules/.bin/mocha --require @babel/register test/ ",
     "build:prod": "cross-env NODE_ENV=production npx babel src --out-dir lib",
     "start:prod": "npm run build:prod && node ./lib/index.js",
-    "deploy": "npm version patch && npm run build:prod && npm publish . --access public && git add . && git commit -m \"version bump\" && git push"
+    "deploy": "npm version patch && npm run build:prod && npm publish . --access public && git push origin master"
   },
   "repository": {
     "type": "git",
@@ -28,14 +28,12 @@
   "dependencies": {
     "cli-progress": "^3.4.0",
     "jsdom": "^15.2.1",
-    "mkdirp": "^0.5.1",
     "npm-api": "^1.0.0",
     "prismjs": "^1.17.1",
     "puppeteer": "^2.0.0",
     "recursive-readdir": "^2.2.2",
-    "request-promise-native": "^1.0.8",
     "settings-store": "^1.4.1",
-    "yargs": "^15.0.2"
+    "yargs": "^16.0.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.7.4",
@@ -45,6 +43,8 @@
     "@babel/plugin-transform-runtime": "^7.7.4",
     "@babel/preset-env": "^7.7.4",
     "@babel/register": "^7.7.4",
-    "cross-env": "^6.0.3"
+    "chai": "^4.2.0",
+    "cross-env": "^6.0.3",
+    "mocha": "^8.1.3"
   }
 }
