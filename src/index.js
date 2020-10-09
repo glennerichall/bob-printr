@@ -5,7 +5,7 @@ import version from './version.js';
 import logger from './logger.js';
 import { levels } from './logger.js';
 import NpmApi from 'npm-api';
-import { prnCmd, preCmd } from './cli-args.js';
+import { prnCmd, preCmd, initCmd } from './cli-args.js';
 
 version().then((value) => {
   try {
@@ -15,6 +15,7 @@ version().then((value) => {
       .version(value)
       .command(...prnCmd)
       .command(...preCmd)
+      .command(...initCmd)
       .wrap(yargs.terminalWidth())
       .demandCommand(1, '')
       .strict(true)
