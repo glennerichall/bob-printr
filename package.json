@@ -27,7 +27,7 @@
   ],
   "dependencies": {
     "cli-progress": "^3.4.0",
-    "jsdom": "^15.2.1",
+    "jsdom": "^16.5.0",
     "npm-api": "^1.0.0",
     "prismjs": "^1.17.1",
     "puppeteer": "^2.0.0",
